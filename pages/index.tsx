@@ -14,7 +14,16 @@ const Home: NextPage = () => {
       </Head>
 
       <Header />
-      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 sm:mt-24 mt-20">
+      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 sm:mt-28 mt-20">
+        <a
+          href="https://twitter.com/nutlope/status/1613209684130897921"
+          target="_blank"
+          rel="noreferrer"
+          className="border rounded-2xl py-1 px-4 text-slate-500 text-sm mb-5 hover:scale-105 transition duration-300 ease-in-out"
+        >
+          Used by over <span className="font-semibold">20,000</span> happy
+          customers
+        </a>
         <h1 className="mx-auto max-w-4xl font-display text-5xl font-bold tracking-normal text-slate-900 sm:text-7xl">
           Bringing Text to Image{" "}
           <span className="relative whitespace-nowrap text-[#3290EE]">
@@ -23,17 +32,18 @@ const Home: NextPage = () => {
           </span>{" "}
           for everyone.
         </h1>
+
         <p className="mx-auto mt-12 max-w-xl text-lg text-slate-700 leading-7">
           Want to try out the recent advances in AI? Let AI create images just by using your imagination
         </p>
         <Link
-          className="bg-black rounded-full text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80"
+          className="bg-black rounded-xl text-white font-medium px-4 py-3 sm:mt-10 mt-8 hover:bg-black/80"
           href="/restore"
         >
           Try it out
         </Link>
         <div className="flex justify-between items-center w-full flex-col sm:mt-10 mt-6">
-          <div className="flex flex-col space-y-10 mt-4">
+          <div className="flex flex-col space-y-10 mt-4 mb-16">
             <div className="flex sm:space-x-2 sm:flex-row flex-col">
               <div>
                 <h2 className="mb-1 font-medium text-lg">Original Prompt</h2>
