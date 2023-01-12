@@ -1,8 +1,7 @@
-# [diffused.io]
+## Diffused.io
 
 This project is a fork of the Restore Photos repository. It has been pivoted from 'restoring old photos' to 'converting text to image'.
 
-[![Face Photo Restorer](./public/screenshot.png)](https://restorephotos.io/)
 
 ## How it works
 
