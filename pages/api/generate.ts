@@ -6,7 +6,7 @@ import redis from "../../utils/redis";
 type Data = string;
 interface ExtendedNextApiRequest extends NextApiRequest {
   body: {
-    imageUrl: string;
+    prompt: string;
   };
 }
 
@@ -35,7 +35,7 @@ export default async function handler(
     }
   }
 
-  const imageUrl = req.body.imageUrl;
+  const prompt = req.body.prompt;
   // POST request to Replicate to start the image restoration generation process
   let startResponse = await fetch("https://api.replicate.com/v1/predictions", {
     method: "POST",
@@ -45,8 +45,8 @@ export default async function handler(
     },
     body: JSON.stringify({
       version:
-        "9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3",
-      input: { img: imageUrl, version: "v1.4", scale: 2 },
+        "f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1",
+      input: { prompt },
     }),
   });
 

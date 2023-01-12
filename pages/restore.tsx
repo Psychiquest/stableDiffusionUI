@@ -2,53 +2,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
-import { UploadDropzone } from "react-uploader";
+import { useEffect, useState } from "react";
 import { Uploader } from "uploader";
-import { CompareSlider } from "../components/CompareSlider";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import LoadingDots from "../components/LoadingDots";
 import ResizablePanel from "../components/ResizablePanel";
-import Toggle from "../components/Toggle";
-import appendNewToName from "../utils/appendNewToName";
 import downloadPhoto from "../utils/downloadPhoto";
 
-// Configuration for the uploader
-const uploader = Uploader({ apiKey: "free" });
-const options = {
-  maxFileCount: 1,
-  mimeTypes: ["image/jpeg", "image/png", "image/jpg"],
-  editor: { images: { crop: false } },
-  styles: { colors: { primary: "#000" } },
-};
-
 const Home: NextPage = () => {
-  const [originalPhoto, setOriginalPhoto] = useState<string | null>(null);
   const [restoredImage, setRestoredImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [restoredLoaded, setRestoredLoaded] = useState<boolean>(false);
-  const [sideBySide, setSideBySide] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [photoName, setPhotoName] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState<string>("")
 
-  const UploadDropZone = () => (
-    <UploadDropzone
-      uploader={uploader}
-      options={options}
-      onUpdate={(file) => {
-        if (file.length !== 0) {
-          setPhotoName(file[0].originalFile.originalFileName);
-          setOriginalPhoto(file[0].fileUrl);
-          generatePhoto(file[0].fileUrl);
-        }
-      }}
-      width="670px"
-      height="250px"
-    />
-  );
-
-  async function generatePhoto(fileUrl: string) {
+  async function generatePhoto(prompt: string) {
     await new Promise((resolve) => setTimeout(resolve, 500));
     setLoading(true);
     const res = await fetch("/api/generate", {
@@ -56,14 +25,14 @@ const Home: NextPage = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ imageUrl: fileUrl }),
+      body: JSON.stringify({ prompt }),
     });
 
     let newPhoto = await res.json();
-    if (res.status !== 200) {
+    if (res.status !== 200 || !Array.isArray(newPhoto) || newPhoto.length === 0) {
       setError(newPhoto);
     } else {
-      setRestoredImage(newPhoto);
+      setRestoredImage(newPhoto[0]);
     }
     setLoading(false);
   }
@@ -77,44 +46,20 @@ const Home: NextPage = () => {
 
       <Header />
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4">
-        <h1 className="mx-auto max-w-4xl font-display text-4xl font-bold tracking-normal text-slate-900 sm:text-6xl mb-5">
-          Restore any face photo
+      <h1 className="mx-auto max-w-4xl font-display text-4xl font-bold tracking-normal text-slate-900 sm:text-6xl mb-5">
+          Write your prompt here
         </h1>
+        <textarea placeholder={"A unicorn riding in the streets of Mumbai"} className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={(event) => {setPrompt(event.target.value); setRestoredImage(null); setRestoredLoaded(false)}}></textarea>
+        <br/>
+        <button onClick={() => generatePhoto(prompt)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-max center">Submit</button>
         <ResizablePanel>
           <AnimatePresence exitBeforeEnter>
             <motion.div className="flex justify-between items-center w-full flex-col mt-4">
-              <Toggle
-                className={`${restoredLoaded ? "visible" : "invisible"} mb-6`}
-                sideBySide={sideBySide}
-                setSideBySide={(newVal) => setSideBySide(newVal)}
-              />
-              {restoredLoaded && sideBySide && (
-                <CompareSlider
-                  original={originalPhoto!}
-                  restored={restoredImage!}
-                />
-              )}
-              {!originalPhoto && <UploadDropZone />}
-              {originalPhoto && !restoredImage && (
-                <Image
-                  alt="original photo"
-                  src={originalPhoto}
-                  className="rounded-2xl"
-                  width={475}
-                  height={475}
-                />
-              )}
-              {restoredImage && originalPhoto && !sideBySide && (
+              {restoredImage && prompt && (
                 <div className="flex sm:space-x-4 sm:flex-row flex-col">
                   <div>
-                    <h2 className="mb-1 font-medium text-lg">Original Photo</h2>
-                    <Image
-                      alt="original photo"
-                      src={originalPhoto}
-                      className="rounded-2xl relative"
-                      width={475}
-                      height={475}
-                    />
+                    <h2 className="mb-1 font-medium text-lg">Original Prompt</h2>
+                    <p className="mx-auto mt-12 max-w-xl text-lg text-slate-700 leading-10">{prompt}</p>
                   </div>
                   <div className="sm:mt-0 mt-8">
                     <h2 className="mb-1 font-medium text-lg">Restored Photo</h2>
@@ -150,16 +95,15 @@ const Home: NextPage = () => {
                 </div>
               )}
               <div className="flex space-x-2 justify-center">
-                {originalPhoto && !loading && (
+                {restoredImage && !loading && (
                   <button
                     onClick={() => {
-                      setOriginalPhoto(null);
                       setRestoredImage(null);
                       setRestoredLoaded(false);
                     }}
                     className="bg-black rounded-full text-white font-medium px-4 py-2 mt-8 hover:bg-black/80 transition"
                   >
-                    Upload New Photo
+                    Upload New Prompt
                   </button>
                 )}
                 {restoredLoaded && (
@@ -167,7 +111,7 @@ const Home: NextPage = () => {
                     onClick={() => {
                       downloadPhoto(
                         restoredImage!,
-                        appendNewToName(photoName!)
+                        Math.random().toString(36).substring(2,7) + ".jpg"
                       );
                     }}
                     className="bg-white rounded-full text-black border font-medium px-4 py-2 mt-8 hover:bg-gray-100 transition"

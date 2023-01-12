@@ -35,7 +35,7 @@ export default function Footer() {
       </div>
       <div className="flex space-x-3 sm:space-x-4">
         <Link
-          href="https://twitter.com/nutlope"
+          href="https://twitter.com/ruseel09"
           className="group"
           aria-label="TaxPal on Twitter"
         >
